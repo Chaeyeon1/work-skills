@@ -89,9 +89,13 @@ if [ -f AGENTS.md ]; then
       hit=$(printf '%s\n' "$code" | while IFS= read -r f; do
         [ -f "$f" ] || continue
         # 번호 바로 뒤에 한글·숫자가 붙으면('3분기') 규칙 번호로 보지 않는다
-        perl -CSD -Mutf8 -ne 'while (/규칙 ?(\d+(?:[ ,·와및]+\d+)*)(?![\d\p{Hangul}])/g) { print "$1\n" }' "$f" 2>/dev/null | grep -oE "[0-9]+" | grep -qx "$n" && echo "$f"
+        # '규칙 16~20' 같은 범위는 펼쳐서 센다
+        perl -CSD -Mutf8 -ne 'while (/규칙 ?(\d+(?:\s*[~–-]\s*\d+|[ ,·와및]+\d+)*)(?![\d\p{Hangul}])/g) { my $g = $1; $g =~ s/(\d+)\s*[~–-]\s*(\d+)/join(",", $1 .. $2)/ge; print "$g\n" }' "$f" 2>/dev/null | grep -oE "[0-9]+" | grep -qx "$n" && echo "$f"
       done | head -3 | tr '\n' ' ')
-      [ -n "$hit" ] && ok "규칙 $n → $hit" || warn "규칙 $n 주석이 코드에 없음 (코드가 아닌 규칙이면 \$검사 대조표에 근거를 적는다)"
+      if [ -n "$hit" ]; then ok "규칙 $n → $hit"
+      elif printf '%s\n' "$files" | grep -E '(^|/)checks/' | while IFS= read -r f; do [ -f "$f" ] && grep -qE "규칙 ?${n}([^0-9]|$)" "$f" && echo y; done | grep -q y; then
+        warn "규칙 $n: checks/ 에만 있음 (측정·검산 규칙이면 괜찮다. 결과물 코드에 있어야 할 규칙이면 빠진 것)"
+      else warn "규칙 $n 주석이 코드에 없음 (코드가 아닌 규칙이면 \$검사 대조표에 근거를 적는다)"; fi
     done
   fi
 fi
