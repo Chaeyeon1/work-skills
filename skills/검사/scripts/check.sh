@@ -15,7 +15,8 @@ fail() { echo "✗ $*"; bad=1; }
 section_lines() {
   # pat 이 든 제목(수준 상관없이) 아래, 같은 수준이거나 더 높은 다음 제목 전까지 내용 줄 수
   awk -v pat="$2" '
-    /^#+ / { lv = length($1)
+    /^```/ { fence = !fence }
+    !fence && /^#+ / { lv = length($1)
              if (on && lv <= onlv) on = 0
              if (!on && $0 ~ pat) { on = 1; onlv = lv }
              next }
@@ -31,7 +32,11 @@ for f in README.md PLAN.md NOTES.md AGENTS.md; do
 done
 if [ -f README.md ]; then
   if grep -qE '^#+ .*(실행 방법|실행방법|사용법|Usage|How to run|Run)' README.md; then
-    run=$(awk '/^#/ { on = ($0 ~ /(실행 방법|실행방법|사용법|Usage|How to run|Run)/); next } on' README.md | grep -vE '^[[:space:]]*$|여기에 적어|TODO' | wc -l | tr -d ' ')
+    # 코드 블록(```) 안의 '# 주석' 은 제목이 아니다. 실행 방법 제목 아래, 같은 수준 이상의 다음 제목 전까지
+    run=$(awk '/^```/ { fence = !fence; if (on) print; next }
+      !fence && /^#+ / { lv = length($1); if (on && lv <= onlv) on = 0
+                         if (!on && $0 ~ /(실행 방법|실행방법|사용법|Usage|How to run|Run)/) { on = 1; onlv = lv; next } }
+      on' README.md | grep -vE '^[[:space:]]*$|^```|여기에 적어|TODO' | wc -l | tr -d ' ')
     [ "$run" -gt 0 ] && ok "README 실행 방법 ${run}줄" || warn "README 실행 방법이 비어 있음 (\$보고서 에서 채운다)"
   else fail "README 에 실행 방법 제목 없음"; fi
 fi
