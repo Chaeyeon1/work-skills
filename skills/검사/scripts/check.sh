@@ -74,7 +74,8 @@ code=$(printf '%s\n' "$files" | grep -vE '(^|/)(\.agents|out|output|dist|build|\
 
 echo "== 규칙 ↔ 코드"
 if [ -f AGENTS.md ]; then
-  rules=$(awk '/^#/ { on = ($0 ~ /확정된 규칙/); next } on' AGENTS.md | grep -oE '^[[:space:]]*[0-9]+\)' | tr -dc '0-9\n')
+  # '(코드 아님)' 이 붙은 규칙과 다른 규칙으로 바뀐 규칙은 코드 대조에서 뺀다
+  rules=$(awk '/^#/ { on = ($0 ~ /확정된 규칙/); next } on' AGENTS.md | grep -vE '\(코드 아님\)|→ 규칙 [0-9]+ 으로 바뀜' | grep -oE '^[[:space:]]*[0-9]+\)' | tr -dc '0-9\n')
   if [ -z "$rules" ]; then
     warn "AGENTS.md '확정된 규칙'에 번호 붙은 규칙이 없음"
   else
