@@ -6,8 +6,9 @@ cd "${1:-.}" || exit 2
 export LC_ALL="${LC_ALL:-en_US.UTF-8}"
 
 bad=0
+nw=0
 ok()   { echo "✓ $*"; }
-warn() { echo "! $*"; }
+warn() { echo "! $*"; nw=$((nw + 1)); }
 fail() { echo "✗ $*"; bad=1; }
 
 # 섹션 제목(## …) 아래, 다음 제목 전까지 내용이 있는 줄 수
@@ -31,7 +32,7 @@ done
 if [ -f README.md ]; then
   if grep -qE '^#+ .*(실행|사용|Run|run|Usage)' README.md; then
     run=$(awk '/^#/ { on = ($0 ~ /(실행|사용|Run|run|Usage)/); next } on' README.md | grep -vE '^[[:space:]]*$|여기에 적어|TODO' | wc -l | tr -d ' ')
-    [ "$run" -gt 0 ] && ok "README 실행 방법 ${run}줄" || fail "README 실행 방법 제목은 있는데 내용이 비어 있음"
+    [ "$run" -gt 0 ] && ok "README 실행 방법 ${run}줄" || warn "README 실행 방법이 비어 있음 (\$보고서 에서 채운다)"
   else fail "README 에 실행 방법 제목 없음"; fi
 fi
 if [ -f NOTES.md ]; then
@@ -50,7 +51,7 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   c=$(git rev-list --count HEAD 2>/dev/null || echo 0)
   [ "$c" -ge 3 ] && ok "커밋 ${c}개" || warn "커밋 ${c}개 (단계마다 커밋했는지)"
   for f in README.md PLAN.md NOTES.md AGENTS.md; do
-    [ -f "$f" ] && ! git ls-files --error-unmatch "$f" >/dev/null 2>&1 && fail "$f 가 한 번도 커밋되지 않음"
+    [ -f "$f" ] && [ -z "$(git log -1 --format=%h -- "$f" 2>/dev/null)" ] && fail "$f 가 한 번도 커밋되지 않음"
   done
   d=$(git status --porcelain | wc -l | tr -d ' ')
   [ "$d" -eq 0 ] && ok "커밋 안 된 변경 없음" || warn "커밋 안 된 변경 ${d}개"
@@ -94,5 +95,5 @@ sec=$(printf '%s\n' "$files" | while IFS= read -r f; do [ -f "$f" ] && grep -nHE
 [ -z "$sec" ] && ok "파일에 키 값 없음" || { fail "키 값으로 보이는 문자열"; echo "$sec" | cut -c1-80; }
 
 echo
-[ "$bad" -eq 0 ] && echo "고칠 것 없음" || echo "✗ 부터 고치세요"
+if [ "$bad" -ne 0 ]; then echo "✗ 부터 고치세요"; elif [ "$nw" -gt 0 ]; then echo "고칠 것 없음 · 확인 필요 ${nw}개 (! 줄을 \$검사 대조표에서 따진다)"; else echo "고칠 것 없음"; fi
 exit "$bad"
