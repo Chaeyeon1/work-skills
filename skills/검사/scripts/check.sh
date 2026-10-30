@@ -12,8 +12,12 @@ fail() { echo "✗ $*"; bad=1; }
 
 # 섹션 제목(## …) 아래, 다음 제목 전까지 내용이 있는 줄 수
 section_lines() {
+  # pat 이 든 제목(수준 상관없이) 아래, 같은 수준이거나 더 높은 다음 제목 전까지 내용 줄 수
   awk -v pat="$2" '
-    /^##? / { on = ($0 ~ pat); next }   # ### 이하 하위 제목은 섹션을 끊지 않는다
+    /^#+ / { lv = length($1)
+             if (on && lv <= onlv) on = 0
+             if (!on && $0 ~ pat) { on = 1; onlv = lv }
+             next }
     on && $0 !~ /^[[:space:]]*$/ && $0 !~ /^[[:space:]]*\(/ { n++ }
     END { print n + 0 }' "$1"
 }
