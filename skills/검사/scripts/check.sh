@@ -60,10 +60,10 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   for f in README.md PLAN.md NOTES.md AGENTS.md; do
     [ -f "$f" ] && [ -z "$(git log -1 --format=%h -- "$f" 2>/dev/null)" ] && fail "$f 가 한 번도 커밋되지 않음"
   done
-  d=$(git status --porcelain | wc -l | tr -d ' ')
+  d=$(git -c core.quotepath=off status --porcelain | wc -l | tr -d ' ')
   [ "$d" -eq 0 ] && ok "커밋 안 된 변경 없음" || warn "커밋 안 된 변경 ${d}개"
-  files=$(git ls-files -co --exclude-standard)
-  junk=$(git ls-files | grep -E '(^|/)(__pycache__/|\.DS_Store$|.*\.pyc$|node_modules/)' | head -3)
+  files=$(git -c core.quotepath=off ls-files -co --exclude-standard)
+  junk=$(git -c core.quotepath=off ls-files | grep -E '(^|/)(__pycache__/|\.DS_Store$|.*\.pyc$|node_modules/)' | head -3)
   [ -z "$junk" ] && ok "커밋에 부산물 없음" || { fail "커밋에 들어간 부산물 (.gitignore 에 넣고 git rm --cached)"; echo "$junk"; }
 else
   fail "git 저장소가 아님"
