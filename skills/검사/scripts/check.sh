@@ -69,7 +69,8 @@ else
   fail "git 저장소가 아님"
   files=$(find . -type f -not -path './.git/*' -not -path '*/node_modules/*' | sed 's|^\./||')
 fi
-code=$(printf '%s\n' "$files" | grep -vE '(^|/)\.agents/|\.(md|txt|csv|json|lock|png|jpg|pdf|xlsx)$' | grep -v '^$')
+# 코드 = 원본 자료·결과물·문서가 아닌 파일 (out/·output/·dist/·build/·.verify/ 의 생성물은 코드로 세지 않는다)
+code=$(printf '%s\n' "$files" | grep -vE '(^|/)(\.agents|out|output|dist|build|\.verify)/|\.(md|txt|csv|tsv|json|lock|png|jpg|svg|pdf|xlsx|log)$' | grep -v '^$')
 
 echo "== 규칙 ↔ 코드"
 if [ -f AGENTS.md ]; then
