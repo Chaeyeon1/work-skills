@@ -39,6 +39,13 @@ if [ -f NOTES.md ]; then
   grep -qE '확인 ?:|^- .*→' NOTES.md && ok "NOTES 에 확인 기록 있음" || fail "NOTES 에 확인 기록(명령 → 결과) 없음"
 fi
 if [ -f NOTES.md ]; then
+  # NOTES 에 적힌 가장 늦은 시각이 지금보다 늦으면 어림해 적은 것 (자정 넘김은 6시간 안쪽만 의심)
+  late=$(grep -oE '\b[0-2][0-9]:[0-5][0-9]\b' NOTES.md | sort | tail -1)
+  nowhm=$(date +%H:%M)
+  if [ -n "$late" ]; then
+    lm=$((10#${late%:*} * 60 + 10#${late#*:})); nm=$((10#${nowhm%:*} * 60 + 10#${nowhm#*:}))
+    [ "$lm" -gt "$nm" ] && [ $((lm - nm)) -lt 360 ] && warn "NOTES 시각 $late 가 지금($nowhm)보다 늦음 — 어림한 시각인지 확인 (date·git log)"
+  fi
   multi=$(grep -nE 'Q:.*Q:' NOTES.md | head -2)
   [ -z "$multi" ] && ok "NOTES 문답이 한 줄에 하나씩" || { fail "NOTES 한 줄에 문답이 여러 개 붙어 있음"; echo "$multi" | cut -c1-80; }
 fi
