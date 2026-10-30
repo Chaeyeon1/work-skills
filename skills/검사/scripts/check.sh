@@ -37,6 +37,10 @@ fi
 if [ -f NOTES.md ]; then
   grep -qE '확인 ?:|^- .*→' NOTES.md && ok "NOTES 에 확인 기록 있음" || fail "NOTES 에 확인 기록(명령 → 결과) 없음"
 fi
+if [ -f NOTES.md ]; then
+  multi=$(grep -nE 'Q:.*Q:' NOTES.md | head -2)
+  [ -z "$multi" ] && ok "NOTES 문답이 한 줄에 하나씩" || { fail "NOTES 한 줄에 문답이 여러 개 붙어 있음"; echo "$multi" | cut -c1-80; }
+fi
 lim=0
 for f in README.md NOTES.md; do [ -f "$f" ] && lim=$((lim + $(section_lines "$f" '한계'))); done
 [ "$lim" -gt 0 ] && ok "남은 한계 있음" || warn "README·NOTES 에 '남은 한계'가 비어 있음 (\$보고서 에서 채운다)"
@@ -45,6 +49,9 @@ echo "== git"
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   c=$(git rev-list --count HEAD 2>/dev/null || echo 0)
   [ "$c" -ge 3 ] && ok "커밋 ${c}개" || warn "커밋 ${c}개 (단계마다 커밋했는지)"
+  for f in README.md PLAN.md NOTES.md AGENTS.md; do
+    [ -f "$f" ] && ! git ls-files --error-unmatch "$f" >/dev/null 2>&1 && fail "$f 가 한 번도 커밋되지 않음"
+  done
   d=$(git status --porcelain | wc -l | tr -d ' ')
   [ "$d" -eq 0 ] && ok "커밋 안 된 변경 없음" || warn "커밋 안 된 변경 ${d}개"
   files=$(git ls-files -co --exclude-standard)
