@@ -54,8 +54,12 @@ if [ -f AGENTS.md ]; then
     warn "AGENTS.md '확정된 규칙'에 번호 붙은 규칙이 없음"
   else
     for n in $rules; do
-      hit=$(printf '%s\n' "$code" | while IFS= read -r f; do [ -f "$f" ] && grep -lE "규칙 ?${n}([^0-9]|$)" "$f" 2>/dev/null; done | head -3 | tr '\n' ' ')
-      [ -n "$hit" ] && ok "규칙 $n → $hit" || fail "규칙 $n 이 코드 어디에도 없음 ('# 규칙 ${n}' 주석)"
+      # '규칙 3', '규칙 1, 9', '규칙 5·8' 처럼 나열한 번호도 읽는다
+      hit=$(printf '%s\n' "$code" | while IFS= read -r f; do
+        [ -f "$f" ] || continue
+        grep -oE "규칙 ?[0-9]+([ ,·와및]+[0-9]+)*" "$f" 2>/dev/null | grep -oE "[0-9]+" | grep -qx "$n" && echo "$f"
+      done | head -3 | tr '\n' ' ')
+      [ -n "$hit" ] && ok "규칙 $n → $hit" || warn "규칙 $n 주석이 코드에 없음 (코드가 아닌 규칙이면 \$검사 대조표에 근거를 적는다)"
     done
   fi
 fi
