@@ -6,7 +6,7 @@ description: 커밋 전이나 마무리 전에 쓴다. 점검 스크립트를 �
 # 규칙 검사 (고치지 않는다)
 
 1. 작업 폴더에서 점검 스크립트를 실행하고 결과를 보여 준다.
-   `bash ~/.agents/skills/검사/scripts/check.sh` (없으면 `.agents/skills/검사/scripts/check.sh`)
+   `bash .agents/skills/검사/scripts/check.sh` (없으면 `bash ~/.agents/skills/검사/scripts/check.sh`)
 2. **대조표.** AGENTS.md '확정된 규칙'마다 `| 규칙 | 코드 위치(파일:줄) | 확인 명령 → 결과 | 상태 |`. 확인 명령은 실제로 다시 돌린다. 코드에 없으면 '빠짐'.
 3. **박아 둔 값.** 코드 조건에 특정 ID·이름·날짜가 그대로 들어간 곳을 찾는다(`grep -nE '== ?["\x27][A-Z]-?[0-9]'` 등). 규칙으로 바꿀 수 있으면 고칠 것 목록에.
 4. **확인 안 된 것.** AGENTS.md '확인 안 된 것' 중 코드가 이미 한쪽으로 정해 버린 곳을 찾는다. 사용자가 정하지 않은 결정은 숨기지 않는다.

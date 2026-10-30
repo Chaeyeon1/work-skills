@@ -13,7 +13,7 @@ fail() { echo "✗ $*"; bad=1; }
 # 섹션 제목(## …) 아래, 다음 제목 전까지 내용이 있는 줄 수
 section_lines() {
   awk -v pat="$2" '
-    /^#/ { on = ($0 ~ pat); next }
+    /^##? / { on = ($0 ~ pat); next }   # ### 이하 하위 제목은 섹션을 끊지 않는다
     on && $0 !~ /^[[:space:]]*$/ && $0 !~ /^[[:space:]]*\(/ { n++ }
     END { print n + 0 }' "$1"
 }
@@ -25,14 +25,17 @@ for f in README.md PLAN.md NOTES.md AGENTS.md; do
   if [ "$n" -lt 3 ]; then fail "$f 내용이 거의 없음 (${n}줄)"; else ok "$f (${n}줄)"; fi
 done
 if [ -f README.md ]; then
-  grep -qE '^#+ .*(실행|사용|Run|run|Usage)' README.md && ok "README 에 실행 방법 제목 있음" || fail "README 에 실행 방법 제목 없음"
+  if grep -qE '^#+ .*(실행|사용|Run|run|Usage)' README.md; then
+    run=$(awk '/^#/ { on = ($0 ~ /(실행|사용|Run|run|Usage)/); next } on' README.md | grep -vE '^[[:space:]]*$|여기에 적어|TODO' | wc -l | tr -d ' ')
+    [ "$run" -gt 0 ] && ok "README 실행 방법 ${run}줄" || fail "README 실행 방법 제목은 있는데 내용이 비어 있음"
+  else fail "README 에 실행 방법 제목 없음"; fi
 fi
 if [ -f NOTES.md ]; then
   grep -qE '확인 ?:|^- .*→' NOTES.md && ok "NOTES 에 확인 기록 있음" || fail "NOTES 에 확인 기록(명령 → 결과) 없음"
 fi
 lim=0
 for f in README.md NOTES.md; do [ -f "$f" ] && lim=$((lim + $(section_lines "$f" '한계'))); done
-[ "$lim" -gt 0 ] && ok "남은 한계 있음" || fail "README·NOTES 에 '남은 한계'가 비어 있음"
+[ "$lim" -gt 0 ] && ok "남은 한계 있음" || warn "README·NOTES 에 '남은 한계'가 비어 있음 (\$보고서 에서 채운다)"
 
 echo "== git"
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -41,6 +44,8 @@ if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   d=$(git status --porcelain | wc -l | tr -d ' ')
   [ "$d" -eq 0 ] && ok "커밋 안 된 변경 없음" || warn "커밋 안 된 변경 ${d}개"
   files=$(git ls-files -co --exclude-standard)
+  junk=$(git ls-files | grep -E '(^|/)(__pycache__/|\.DS_Store$|.*\.pyc$|node_modules/)' | head -3)
+  [ -z "$junk" ] && ok "커밋에 부산물 없음" || { fail "커밋에 들어간 부산물 (.gitignore 에 넣고 git rm --cached)"; echo "$junk"; }
 else
   fail "git 저장소가 아님"
   files=$(find . -type f -not -path './.git/*' -not -path '*/node_modules/*' | sed 's|^\./||')
