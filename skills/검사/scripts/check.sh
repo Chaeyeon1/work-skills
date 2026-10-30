@@ -30,8 +30,8 @@ for f in README.md PLAN.md NOTES.md AGENTS.md; do
   if [ "$n" -lt 3 ]; then fail "$f 내용이 거의 없음 (${n}줄)"; else ok "$f (${n}줄)"; fi
 done
 if [ -f README.md ]; then
-  if grep -qE '^#+ .*(실행|사용|Run|run|Usage)' README.md; then
-    run=$(awk '/^#/ { on = ($0 ~ /(실행|사용|Run|run|Usage)/); next } on' README.md | grep -vE '^[[:space:]]*$|여기에 적어|TODO' | wc -l | tr -d ' ')
+  if grep -qE '^#+ .*(실행 방법|실행방법|사용법|Usage|How to run|Run)' README.md; then
+    run=$(awk '/^#/ { on = ($0 ~ /(실행 방법|실행방법|사용법|Usage|How to run|Run)/); next } on' README.md | grep -vE '^[[:space:]]*$|여기에 적어|TODO' | wc -l | tr -d ' ')
     [ "$run" -gt 0 ] && ok "README 실행 방법 ${run}줄" || warn "README 실행 방법이 비어 있음 (\$보고서 에서 채운다)"
   else fail "README 에 실행 방법 제목 없음"; fi
 fi
@@ -83,7 +83,8 @@ if [ -f AGENTS.md ]; then
       # '규칙 3', '규칙 1, 9', '규칙 5·8' 처럼 나열한 번호도 읽는다
       hit=$(printf '%s\n' "$code" | while IFS= read -r f; do
         [ -f "$f" ] || continue
-        grep -oE "규칙 ?[0-9]+([ ,·와및]+[0-9]+)*" "$f" 2>/dev/null | grep -oE "[0-9]+" | grep -qx "$n" && echo "$f"
+        # 번호 바로 뒤에 한글·숫자가 붙으면('3분기') 규칙 번호로 보지 않는다
+        perl -CSD -Mutf8 -ne 'while (/규칙 ?(\d+(?:[ ,·와및]+\d+)*)(?![\d\p{Hangul}])/g) { print "$1\n" }' "$f" 2>/dev/null | grep -oE "[0-9]+" | grep -qx "$n" && echo "$f"
       done | head -3 | tr '\n' ' ')
       [ -n "$hit" ] && ok "규칙 $n → $hit" || warn "규칙 $n 주석이 코드에 없음 (코드가 아닌 규칙이면 \$검사 대조표에 근거를 적는다)"
     done
@@ -96,7 +97,7 @@ if [ -n "$code" ]; then
   lh=$( { printf '%s\n' "$code"; ls README.md package.json 2>/dev/null; } | sort -u | while IFS= read -r f; do
     [ -f "$f" ] || continue
     grep -nHE "['\"](127\.0\.0\.1|localhost)['\"]" "$f" 2>/dev/null
-    grep -nHE "(\.run\(|uvicorn |flask run|vite( |$)|next dev)" "$f" 2>/dev/null | grep -v '0\.0\.0\.0'
+    grep -nHE "(\.run\(|uvicorn |flask run|vite( |$)|next dev)" "$f" 2>/dev/null | grep -vE '0\.0\.0\.0|subprocess\.run|asyncio\.run'
   done | head -5)
   [ -z "$lh" ] && ok "localhost 전용 바인딩 안 보임" || { warn "localhost 전용 바인딩 의심 (다른 기기·미리보기에서 열려면 0.0.0.0)"; echo "$lh"; }
 fi
