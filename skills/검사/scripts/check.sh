@@ -75,7 +75,7 @@ else
   files=$(find . -type f -not -path './.git/*' -not -path '*/node_modules/*' | sed 's|^\./||')
 fi
 # 코드 = 원본 자료·결과물·문서가 아닌 파일 (out/·output/·dist/·build/·.verify/ 생성물과 checks/ 독립 검산은 코드로 세지 않는다)
-code=$(printf '%s\n' "$files" | grep -vE '(^|/)(\.agents|out|output|dist|build|\.verify|checks)/|\.(md|txt|csv|tsv|json|lock|png|jpg|svg|pdf|xlsx|log)$' | grep -v '^$')
+code=$(printf '%s\n' "$files" | grep -vE '(^|/)(\.agents|out|output|dist|build|\.verify|checks|view)/|\.(md|txt|csv|tsv|json|lock|png|jpg|svg|pdf|xlsx|log)$' | grep -v '^$')
 
 echo "== 규칙 ↔ 코드"
 if [ -f AGENTS.md ]; then
