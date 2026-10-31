@@ -16,6 +16,8 @@
   cases     [{"cond": 입력 조건(경계·빈 값·처음 보는 값·중복·기간 밖…), "result": 결과, "how": 확인 방법(checks 이름 / 명령 / 화면 / 미확인)}]
   diffs     [{"what": 요청과 다르게 간 것, "why": 이유, "who": "요청자 HH:MM" 또는 "사용자 결정 HH:MM (요청자 미확인)", "pending": 대기 중인 질문}]
   files     {"바뀐 파일 경로": "요청자에게 무엇이 달라졌나 한 줄"}
+  # 평소 보고서는 수정 전/후를 같은 조건에서 찍은 실제 화면 캡처로 넣는다(제보 원본 · 수정 전 · 수정 후).
+  # 캡처를 쓸 수 없는 환경(캡처 단축키를 막아 둔 원격 작업 환경 등)에서는 table/lines 로 실제 출력을 발췌해 넣는다.
   before_after {"before": {"caption", "table": {"head", "rows"} | "lines": [...] | "img": "img/x.png" (view/img/ 에 두고 커밋)}, "after": {...}, "note": 어떻게 껐고 되돌렸나}
   view      [보는 순서: "새 터미널: python3 -m http.server 8090 --bind 0.0.0.0", "Browser 탭 PORT 8090 · URL /out/x.html", "○○ 누르기"]
   limits    ["🔴/🟠/🟡 무엇이 틀릴 수 있나 → 어떻게 확인하나"]  (비우면 README·NOTES '한계' 절을 쓴다)
