@@ -30,15 +30,21 @@ for f in README.md PLAN.md NOTES.md AGENTS.md; do
   n=$(grep -cvE '^[[:space:]]*(#.*)?$' "$f")
   if [ "$n" -lt 3 ]; then fail "$f 내용이 거의 없음 (${n}줄)"; else ok "$f (${n}줄)"; fi
 done
-if [ -f README.md ]; then
-  if grep -qE '^#+ .*(실행 방법|실행방법|사용법|Usage|How to run|Run)' README.md; then
+# 안내 문서: 요청 문서(README)가 따로 정한 안내 파일이 있으면 그것(실행 방법 제목이 있는 다른 .md), 아니면 README
+DOC=README.md
+for f in *.md; do
+  case "$f" in README.md|PLAN.md|NOTES.md|AGENTS.md|AGENTS.kit.md) continue ;; esac
+  grep -qE '^#+ .*(실행 방법|실행방법|사용법|Usage|How to run|Run)' "$f" && { DOC="$f"; break; }
+done
+if [ -f "$DOC" ]; then
+  if grep -qE '^#+ .*(실행 방법|실행방법|사용법|Usage|How to run|Run)' "$DOC"; then
     # 코드 블록(```) 안의 '# 주석' 은 제목이 아니다. 실행 방법 제목 아래, 같은 수준 이상의 다음 제목 전까지
     run=$(awk '/^```/ { fence = !fence; if (on) print; next }
       !fence && /^#+ / { lv = length($1); if (on && lv <= onlv) on = 0
                          if (!on && $0 ~ /(실행 방법|실행방법|사용법|Usage|How to run|Run)/) { on = 1; onlv = lv; next } }
-      on' README.md | grep -vE '^[[:space:]]*$|^```|여기에 적어|TODO' | wc -l | tr -d ' ')
-    [ "$run" -gt 0 ] && ok "README 실행 방법 ${run}줄" || warn "README 실행 방법이 비어 있음 (\$보고서 에서 채운다)"
-  else fail "README 에 실행 방법 제목 없음"; fi
+      on' "$DOC" | grep -vE '^[[:space:]]*$|^```|여기에 적어|TODO' | wc -l | tr -d ' ')
+    [ "$run" -gt 0 ] && ok "$DOC 실행 방법 ${run}줄" || warn "$DOC 실행 방법이 비어 있음 (\$보고서 에서 채운다)"
+  else fail "$DOC 에 실행 방법 제목 없음"; fi
 fi
 if [ -f NOTES.md ]; then
   grep -qE '확인 ?:|^- .*→' NOTES.md && ok "NOTES 에 확인 기록 있음" || fail "NOTES 에 확인 기록(명령 → 결과) 없음"
@@ -55,7 +61,7 @@ if [ -f NOTES.md ]; then
   [ -z "$multi" ] && ok "NOTES 문답이 한 줄에 하나씩" || { fail "NOTES 한 줄에 문답이 여러 개 붙어 있음"; echo "$multi" | cut -c1-80; }
 fi
 lim=0
-for f in README.md NOTES.md; do [ -f "$f" ] && lim=$((lim + $(section_lines "$f" '한계'))); done
+for f in "$DOC" NOTES.md; do [ -f "$f" ] && lim=$((lim + $(section_lines "$f" '한계'))); done
 [ "$lim" -gt 0 ] && ok "남은 한계 있음" || warn "README·NOTES 에 '남은 한계'가 비어 있음 (\$보고서 에서 채운다)"
 
 echo "== git"
