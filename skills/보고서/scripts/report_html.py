@@ -231,6 +231,8 @@ for side in ("before", "after"):
 for k in ("summary", "features", "cases", "view"):
     if not data.get(k):
         missing.append("빈 칸: %s" % k)
+    elif isinstance(data.get(k), list) and any(not isinstance(x, dict) for x in data[k]):
+        missing.append("형식 틀림: %s 에 객체가 아닌 항목 %d개(그려지지 않음)" % (k, sum(not isinstance(x, dict) for x in data[k])))
 
 
 def e(s):
