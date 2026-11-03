@@ -50,8 +50,8 @@ if [ -f NOTES.md ]; then
   grep -qE '확인 ?:|^- .*→' NOTES.md && ok "NOTES 에 확인 기록 있음" || fail "NOTES 에 확인 기록(명령 → 결과) 없음"
 fi
 if [ -f NOTES.md ]; then
-  # NOTES 에 적힌 가장 늦은 시각이 지금보다 늦으면 어림해 적은 것 (자정 넘김은 6시간 안쪽만 의심)
-  late=$(grep -oE '\b[0-2][0-9]:[0-5][0-9]\b' NOTES.md | sort | tail -1)
+  # NOTES 기록 줄(- HH:MM 으로 시작)의 가장 늦은 시각이 지금보다 늦으면 어림해 적은 것 (자료 안 시각은 보지 않음, 자정 넘김은 6시간 안쪽만 의심)
+  late=$(grep -oE '^- [0-2][0-9]:[0-5][0-9]' NOTES.md | cut -c3- | sort | tail -1)
   nowhm=$(date +%H:%M)
   if [ -n "$late" ]; then
     lm=$((10#${late%:*} * 60 + 10#${late#*:})); nm=$((10#${nowhm%:*} * 60 + 10#${nowhm#*:}))
