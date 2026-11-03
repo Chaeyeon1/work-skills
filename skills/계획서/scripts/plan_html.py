@@ -161,7 +161,7 @@ for l in pick(A, "확인 안 된 것"):
     t = bullet(l)
     if not t or t.startswith("정하지 말고"):
         continue
-    if re.search(r"사용자 결정|요청자가 맡김|해석:|코드는 .* 로 처리", t):
+    if re.search(r"사용자 결정|요청자가 맡김|요청자 결정 아님|해석:|코드는 .* 로 처리", t):
         decided.append(t)
     else:
         unknown.append(t)
