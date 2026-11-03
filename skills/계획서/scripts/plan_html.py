@@ -131,7 +131,7 @@ for s in steps:
     s["check"] = check.strip()
     s["rules"] = set(rule_nums(s["text"]))
 # '규칙 ↔ 단계' 줄의 '규칙 1·2 → 단계 1' 도 반영
-for m in re.finditer(r"규칙\s?([\d\s,·~–-]+?)\s*→\s*단계\s?(\d+)", link_text):
+for m in re.finditer(r"규칙\s?([\d\s,·~–-]+?)\s*(?:\([^)]*\)\s*)?→\s*단계\s?(\d+)", link_text):
     nums = rule_nums("규칙 " + m.group(1))
     for s in steps:
         if s["n"] == int(m.group(2)):
