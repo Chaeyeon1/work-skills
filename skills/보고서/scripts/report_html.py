@@ -20,7 +20,7 @@
   # 캡처를 쓸 수 없는 환경(캡처 단축키를 막아 둔 원격 작업 환경 등)에서는 table/lines 로 실제 출력을 발췌해 넣는다.
   before_after {"before": {"caption", "table": {"head", "rows"} | "lines": [...] | "img": "img/x.png" (view/img/ 에 두고 커밋)}, "after": {...}, "note": 어떻게 껐고 되돌렸나}
   view      [보는 순서: "새 터미널: python3 -m http.server 8090 --bind 0.0.0.0", "Browser 탭 PORT 8090 · URL /out/x.html", "○○ 누르기"]
-  limits    ["🔴/🟠/🟡 무엇이 틀릴 수 있나 → 어떻게 확인하나"]  (비우면 README·NOTES '한계' 절을 쓴다)
+  limits    ["[높음]/[중간]/[낮음] 무엇이 틀릴 수 있나 → 어떻게 확인하나"]  (비우면 README·NOTES '한계' 절을 쓴다)
 """
 import datetime
 import html
