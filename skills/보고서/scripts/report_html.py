@@ -222,6 +222,9 @@ for r in inv["_rules"]:
 dtext = json.dumps(data.get("diffs", []), ensure_ascii=False)
 for d in inv["_decided"]:
     key = re.split(r"\s*→", d)[0].strip()[:14]
+    when = re.findall(r"사용자 결정 (\d{1,2}:\d{2})", d)
+    if when and any(("사용자 결정 " + w) in dtext for w in when):
+        continue
     if key and key not in dtext and not (rule_nums(d) & rule_nums(dtext)):
         missing.append("'다른 점'에 없는 미확인 결정: %s" % d[:50])
 for side in ("before", "after"):
