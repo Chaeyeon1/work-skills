@@ -129,7 +129,7 @@ def inventory():
     checks = []
     if os.path.isdir(os.path.join(ROOT, "checks")):
         for f in sorted(os.listdir(os.path.join(ROOT, "checks"))):
-            if not f.startswith("."):
+            if f.endswith((".py", ".sh", ".js")) and f != "__init__.py":
                 checks.append("checks/" + f)
     for p in sh(*git, "ls-files").splitlines() + [x for x in changed]:
         if re.search(r"(^|/)test_[^/]+\.py$|_test\.py$", p) and os.path.exists(os.path.join(ROOT, p)):
