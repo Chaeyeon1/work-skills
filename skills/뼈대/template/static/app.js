@@ -118,15 +118,19 @@ async function openPlan(id) {
     ? el("details", { open: true }, el("summary", { class: "warn" }, `확인 필요 ${r.issues.length}건`), el("ul", {}, r.issues.map((i) => el("li", {}, `${i.what} — ${i.where}`))))
     : el("p", { class: "ok" }, "확인 필요 없음"));
   const ack = el("input", { type: "checkbox", id: "ack" });
+  const needInputs = (name) => (p.needs[name] || []).map((f) => el("label", {}, f.label,
+    el("input", { "data-need": f.name, type: f.kind === "check" ? "checkbox" : "text", size: f.kind === "check" ? false : 40 })));
   const act = (name, label) => el("button", { disabled: p.stale, onclick: async () => {
-    const res = await api(`/api/plans/${id}/${name}`, { ack: ack.checked });
+    const fields = Object.fromEntries([...document.querySelectorAll("#plan-actions [data-need]")].map((i) => [i.dataset.need, i.type === "checkbox" ? i.checked : i.value]));
+    const res = await api(`/api/plans/${id}/${name}`, { ack: ack.checked, fields });
     $("#gen-result").replaceChildren(el("span", { class: res.ok ? "ok" : "err" }, res.ok ? `${label} 완료` : res.data.error));
     loadOperator();
   } }, label);
   $("#plan-actions").replaceChildren(
     ...(r.issues.length && ["draft", "approved"].includes(p.status) ? [el("label", { class: "warn" }, ack, `확인 필요 ${r.issues.length}건을 봤음`)] : []),
-    ...(p.status === "draft" ? [act("approve", "결재")] : []),
-    ...(p.status === "approved" ? [act("publish", "공개")] : []),
+    ...Object.entries({ draft: ["approve", "결재"], approved: ["publish", "공개"] })
+      .filter(([st, [name]]) => st === p.status && p.needs !== undefined)
+      .flatMap(([, [name, label]]) => [...needInputs(name), act(name, label)]),
   );
   graph($("#plan-graph"), r.graph);
   table($("#plan-rows"), r.rows.slice(0, 500));

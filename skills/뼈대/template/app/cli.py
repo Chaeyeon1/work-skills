@@ -32,7 +32,8 @@ def main(argv):
     out = out or "out/export.json"
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
-        json.dump(result["export"], f, ensure_ascii=False, indent=1)
+        meta = {"plan_id": None, "dataset": os.path.basename(os.path.normpath(folder)), "digest": None, "created_at": None}
+        json.dump(planner.finish_export(result["export"], meta), f, ensure_ascii=False, indent=1)
     print(f"{out} · 조건 {json.dumps(params, ensure_ascii=False)} · {json.dumps(result['summary'], ensure_ascii=False)}")
     return 0
 

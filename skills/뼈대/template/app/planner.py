@@ -6,11 +6,18 @@ generate(data, params) 는 DB·시각·전역 상태를 읽지 않는다(같은 
   rows     [{열: 값}]                            운영자 전체 표 (열 순서 = 첫 행의 키 순서)
   graph    {"nodes": [{"id","label","x","y","group"}], "edges": [{"from","to","label","group"}]}
   members  {아이디: [{"date","start","end","where","what","next","next_min","nodes"}]}   두 번째 역할 화면
-           (nodes = 그래프에서 강조할 노드 id 목록. 자정을 넘는 항목의 date 는 시작한 날)
+           (nodes = 그래프에서 강조할 노드 id 목록. date = 묶는 날짜(자정을 넘는 구간은 시작한 날).
+            그 구간 안에서 다음 날 새벽에 시작하는 항목은 "day" 에 실제 달력 날짜를 따로 넣는다)
   export   EXPORT_SCHEMA 모양 그대로
 규칙을 옮긴 곳에 `# 규칙 N`. 빠지는 대상은 조용히 버리지 말고 issues 에 남긴다.
 """
 from . import clock
+
+
+def finish_export(export, meta):
+    """내보내기 직전에 한 번. meta = {plan_id, dataset, digest, created_at} (CLI 는 plan_id·created_at 이 None).
+    EXPORT_SCHEMA 에 머리 칸(계획 번호·데이터셋·만든 시각)이 있으면 여기서 채운다."""
+    return export
 
 
 def generate(data, params):

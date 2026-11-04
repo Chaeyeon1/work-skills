@@ -32,11 +32,16 @@ def span(day, start, end):
     return s, e
 
 
+def item_span(it):
+    return span(it.get("day") or it["date"], it["start"], it["end"])
+
+
 def work_date(items, at=None):
-    """items: [{date,start,end}]. 지금 걸쳐 있는 구간의 시작 날짜, 없으면 오늘(현지)."""
+    """items: [{date,start,end[,day]}]. 지금 걸쳐 있는 구간의 date(묶는 날짜), 없으면 오늘(현지).
+    day 가 있으면 그 항목의 시작 시각은 day 날짜다(묶는 날짜 다음 날 새벽에 시작하는 항목)."""
     at = at or now()
     for it in items:
-        s, e = span(it["date"], it["start"], it["end"])
+        s, e = item_span(it)
         if s <= at < e:
             return it["date"]
     return at.date().isoformat()

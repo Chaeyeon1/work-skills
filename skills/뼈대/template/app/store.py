@@ -24,6 +24,9 @@ DB_PATH = os.environ.get("DB_PATH", "var/app.db")
 
 # 계획 상태: 동작 → (바꾸기 전 상태, 바꾼 뒤 상태). 결재가 없는 요청이면 {"publish": ("draft", "published")} 로.
 TRANSITIONS = {"approve": ("draft", "approved"), "publish": ("approved", "published")}
+# 동작마다 받아야 하는 입력(요청자가 정한 결재 사유·바깥 확인 등). 빈 값이면 409, 받은 값은 같은 트랜잭션에서 events 에.
+# 예: {"approve": [{"name": "reason", "label": "결재 사유", "kind": "text"}], "publish": [{"name": "outside_done", "label": "○○ 끝남 확인", "kind": "check"}]}
+NEEDS = {"approve": [{"name": "reason", "label": "결재 사유", "kind": "text"}]}  # 예시. 요청자가 정한 것만 남긴다
 STATUS_KO = {"draft": "초안", "approved": "결재됨", "published": "공개", "replaced": "교체됨"}
 
 SCHEMA = """
@@ -166,7 +169,7 @@ def save_plan(con, dataset_id, params, result, who):
     return cur.lastrowid
 
 
-def transition(con, plan_id, action, who, ack=False):
+def transition(con, plan_id, action, who, ack=False, fields=None):
     """C: 읽기·검사·쓰기를 한 트랜잭션에서. 두 사람이 동시에 눌러도 한 번만 바뀐다."""
     if action not in TRANSITIONS:
         raise Conflict(f"없는 동작: {action}")
@@ -181,11 +184,17 @@ def transition(con, plan_id, action, who, ack=False):
         raise Conflict("이전 데이터셋으로 만든 계획입니다. 지금 데이터셋으로 다시 생성하세요.")
     if p["issues_n"] and not ack:
         raise Conflict(f"확인 필요 {p['issues_n']}건이 있습니다. 내용을 보고 '확인함' 을 체크한 뒤 진행하세요.")
+    fields = fields or {}
+    for f in NEEDS.get(action, []):
+        v = fields.get(f["name"])
+        if not (v is True if f["kind"] == "check" else str(v or "").strip()):
+            raise Conflict(f"'{f['label']}' 을(를) {'체크' if f['kind'] == 'check' else '적어'} 주세요.")
     if after == "published":
         con.execute("UPDATE plans SET status='replaced' WHERE status='published'")
     con.execute("UPDATE plans SET status=?, ack_by=COALESCE(ack_by, ?) WHERE id=?",
                 (after, who if p["issues_n"] else None, plan_id))
-    log(con, who, STATUS_KO[after], plan_id, "확인 필요 확인함" if p["issues_n"] else "")
+    got = {f["label"]: fields[f["name"]] for f in NEEDS.get(action, [])}
+    log(con, who, STATUS_KO[after], plan_id, json.dumps({"확인 필요 확인함": bool(p["issues_n"]), **got}, ensure_ascii=False))
     return after
 
 
@@ -209,6 +218,7 @@ def plan(con, plan_id):
     d["params"], d["result"] = json.loads(d["params"]), json.loads(d["result"])
     d["stale"] = not a or r["dataset_id"] != a["id"]
     d["status_ko"] = STATUS_KO.get(r["status"], r["status"])
+    d["needs"] = NEEDS
     return d
 
 

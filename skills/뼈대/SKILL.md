@@ -16,11 +16,11 @@ description: 웹 서비스(데이터셋 적용 → 계산 → 결재·공개 →
    확인: `python3 -m app.cli check data/provided` 의 행 수 = `wc -l` − 1 (표마다)
 2. `python3 checks/break_data.py` → `data/datasets/9x-오류-*`. 내용이 바뀐 정상 데이터셋은 손으로 하나 이상(`01-…`, 상태 열은 두 방향 다).
    확인: 화면 또는 smoke 에서 9x 모두 적용 거절
-3. `app/planner.py` — 예시 계산을 지우고 `generate(data, params)` 를 쓴다. 돌려줄 모양(머리 주석)은 바꾸지 않는다. 규칙마다 `# 규칙 N`, 빠지는 대상은 `issues`.
+3. `app/planner.py` — 예시 계산을 지우고 `generate(data, params)` 를 쓴다. 돌려줄 모양(머리 주석)은 바꾸지 않는다. 규칙마다 `# 규칙 N`, 빠지는 대상은 `issues`. 묶는 날짜와 시작 날짜가 다른 항목(자정 뒤 새벽)은 `day` 를 넣는다. EXPORT_SCHEMA 머리 칸(계획 번호·데이터셋·시각)은 `finish_export` 에서.
    확인: `python3 -m app.cli export data/provided --out out/export.json` 의 요약 숫자
 4. `checks/verify.py` — 예시 규칙을 지우고 요청 문서·확정된 규칙을 하나씩. `app/` 를 import 하지 않는다.
    확인: `python3 checks/verify.py out/export.json data/provided` 가 위반 0 이고, 결과를 일부러 한 건 망가뜨린 사본에서 1 이상
-5. `checks/smoke.py` 머리의 `MEMBER_ID`·`NIGHT`, `app/store.py` 의 `TRANSITIONS`(결재 없으면 publish 하나), 화면 문구(`static/index.html` 제목, 두 번째 역할 이름).
+5. `checks/smoke.py` 머리의 `MEMBER_ID`·`PARAM_CHANGE`·`NIGHT`, `app/store.py` 의 `TRANSITIONS`(결재 없으면 publish 하나)와 `NEEDS`(결재 사유·바깥 확인처럼 요청자가 정한 입력. 예시 줄은 지운다), 화면 문구(`static/index.html` 제목, 두 번째 역할 이름).
    확인: `python3 checks/smoke.py` → 합계 통과 N / N
 6. `HOW_TO_RUN.md` 의 `(채움)` 을 전부. 확인: `grep -c '(채움)' HOW_TO_RUN.md` → 0
 

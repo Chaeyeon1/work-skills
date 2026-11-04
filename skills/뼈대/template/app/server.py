@@ -92,11 +92,15 @@ def export(plan_id):
         p = store.plan(con, plan_id)
     if not p:
         return None
+    with store.read() as con:
+        ds = con.execute("SELECT name, digest FROM datasets WHERE id=?", (p["dataset_id"],)).fetchone()
+    meta = {"plan_id": plan_id, "dataset": ds["name"], "digest": ds["digest"], "created_at": p["created_at"]}
+    ex = planner.finish_export(p["result"]["export"], meta)
     os.makedirs(EXPORT_DIR, exist_ok=True)
     path = os.path.join(EXPORT_DIR, f"plan-{plan_id}.json")
     with open(path, "w", encoding="utf-8") as f:
-        json.dump(p["result"]["export"], f, ensure_ascii=False, indent=1)
-    return {"path": path, "stale": p["stale"], "status": p["status_ko"], "data": p["result"]["export"]}
+        json.dump(ex, f, ensure_ascii=False, indent=1)
+    return {"path": path, "stale": p["stale"], "status": p["status_ko"], "data": ex}
 
 
 def my_view(user, day):
@@ -108,8 +112,8 @@ def my_view(user, day):
     at = clock.now()
     day = day or clock.work_date(items, at)
     mine = [i for i in items if i["date"] == day]
-    now_item = next((i for i in mine if clock.span(i["date"], i["start"], i["end"])[0] <= at < clock.span(i["date"], i["start"], i["end"])[1]), None)
-    upcoming = next((i for i in mine if clock.span(i["date"], i["start"], i["end"])[0] > at), None)
+    now_item = next((i for i in mine if clock.item_span(i)[0] <= at < clock.item_span(i)[1]), None)
+    upcoming = next((i for i in mine if clock.item_span(i)[0] > at), None)
     return {"published": {"id": pub["id"], "created_at": pub["created_at"]}, "date": day, "now": at.strftime("%Y-%m-%d %H:%M"),
             "items": mine, "now_item": now_item, "next_item": upcoming, "graph": pub["result"]["graph"],
             "dates": sorted({i["date"] for i in items})}
@@ -249,9 +253,9 @@ class H(BaseHTTPRequestHandler):
                 r = export(pid)
                 return self.send(200, r) if r else self.send(404, {"error": "없는 계획"})
             if method == "POST" and len(p) == 3:
-                ack = bool(self.body().get("ack"))
-                with store.tx() as con:
-                    st = store.transition(con, pid, p[2], who, ack)
+                b = self.body()
+                with store.tx() as con:  # 검사(상태·데이터셋·확인 필요·NEEDS)와 저장·기록을 한 트랜잭션에서
+                    st = store.transition(con, pid, p[2], who, bool(b.get("ack")), b.get("fields") or {})
                 return self.send(200, {"ok": True, "status": st})
         return self.send(404, {"error": "없는 API"})
 
