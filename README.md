@@ -32,6 +32,7 @@ bash ~/work-skills/install.sh --project .  # 스킬도 지금 폴더 .agents/ski
 | 방향 | 비교표를 보고 고르기 | `$논의 (주제)` |
 | 고를 것이 쌓이면 | 그림을 보고 고르고 답 복사 → 붙여 넣기 | `$질문` → view/questions.html |
 | 합의 | 요청자에게 이해한 문제와 우선순위 확인 | `$계획서` → view/plan.html 로 대조, 내 말로 고치기 |
+| 웹 서비스면 | 틀을 깔고 자료 모양만 채우기 | `$뼈대` |
 | 만들기 | `직접 확인:` 명령을 내가 친다 | `$구현 1`, `$구현 2` … |
 | 점검 | 빠진 규칙 고치기 | `$검사` |
 | 넘기기 | 요청자에게 결과 보여 주기 | `$보고서` → view/report.html |
@@ -47,6 +48,7 @@ bash ~/work-skills/install.sh --project .  # 스킬도 지금 폴더 .agents/ski
 | `논의` | 접근법 비교표와 추천. 고르면 결정·기각 기록 | NOTES.md, AGENTS.md |
 | `질문` | 고를 것마다 자료 몇 줄과 선택지별 결과, 추천 미리 선택, 메모, 답 복사 | view/questions.html, AGENTS.md, NOTES.md |
 | `계획서` | 다시 정의한 문제, 완료 조건, 우선순위, 단계별 확인 명령, 예시 한 건 + 대조 그림 | PLAN.md, view/plan.html |
+| `뼈대` | 서버·DB·로그인·역할별 화면·내보내기·독립 검사기·smoke 틀을 깔고 채울 곳 안내 | app/ · static/ · checks/ · Dockerfile · HOW_TO_RUN.md |
 | `구현 N` | 한 단계 → 확인 명령 → 커밋 → 기록 → 멈춤 | 코드, NOTES.md |
 | `검사` | 점검 스크립트, 규칙 ↔ 코드 대조, 사용자가 안 정한 결정 찾기 | 없음 |
 | `보고서` | 기능·케이스 추출, 잠시 끄고 비교 후 원복, 실행 방법 따라 하기, 넘김 내용 | README.md |

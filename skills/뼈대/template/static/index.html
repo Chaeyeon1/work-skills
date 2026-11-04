@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>계획 서비스</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header>
+  <strong id="title">계획 서비스</strong>
+  <span id="who"></span>
+  <button id="logout" hidden>로그아웃</button>
+</header>
+
+<main>
+  <section id="login" hidden>
+    <h2>로그인</h2>
+    <form id="login-form">
+      <label>아이디 <input name="id" autocomplete="username" required></label>
+      <label>비밀번호 <input name="pw" type="password" autocomplete="current-password" required></label>
+      <button>들어가기</button>
+    </form>
+    <p class="err" id="login-err"></p>
+  </section>
+
+  <section id="operator" hidden>
+    <div class="bar" id="active-bar"></div>
+
+    <h2>1. 데이터셋</h2>
+    <div class="row">
+      <select id="ds-name"></select>
+      <button id="ds-check">검사</button>
+      <button id="ds-apply">적용</button>
+    </div>
+    <div id="ds-result"></div>
+
+    <h2>2. 조건</h2>
+    <form id="params-form" class="row"></form>
+    <div id="params-result"></div>
+
+    <h2>3. 계획</h2>
+    <div class="row"><button id="gen">지금 데이터셋·조건으로 생성</button> <span id="gen-result"></span></div>
+    <table id="plans"></table>
+
+    <div id="plan" hidden>
+      <h2 id="plan-title"></h2>
+      <div class="bar" id="plan-bar"></div>
+      <dl id="plan-summary"></dl>
+      <div id="plan-issues"></div>
+      <div class="row" id="plan-actions"></div>
+      <div id="plan-graph"></div>
+      <table id="plan-rows"></table>
+      <h3>내보내기</h3>
+      <div class="row"><button id="export">JSON 내보내기</button> <span id="export-path"></span></div>
+      <pre id="export-json" hidden></pre>
+    </div>
+
+    <h2>기록</h2>
+    <table id="events"></table>
+  </section>
+
+  <section id="member" hidden>
+    <div class="bar" id="my-bar"></div>
+    <div class="row"><label>날짜 <select id="my-date"></select></label></div>
+    <div id="my-now"></div>
+    <div id="my-graph"></div>
+    <table id="my-items"></table>
+  </section>
+</main>
+<script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+.git
+.agents
+.stake
+.verify
+var
+out
+view
+__pycache__
+.env
