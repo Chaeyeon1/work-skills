@@ -4,7 +4,9 @@ generate(data, params) 는 DB·시각·전역 상태를 읽지 않는다(같은 
   summary  {이름: 값}                            운영자 화면 맨 위 숫자
   issues   [{"what", "where"}]                   '확인 필요'. 하나라도 있으면 결재·공개에 확인 체크가 필요하다
   rows     [{열: 값}]                            운영자 전체 표 (열 순서 = 첫 행의 키 순서)
-  graph    {"nodes": [{"id","label","x","y","group"}], "edges": [{"from","to","label","group"}]}
+  graph    {"nodes": [{"id","label","x","y","group"}], "edges": [{"from","to","label","group"}],
+            "shapes": [{"kind": "poly", "points": [[x,y],…]} | {"kind": "circle", "x","y","r"}, + "label","group"]}
+           (shapes 는 넣어도 되고 빼도 된다 — 면적·구역 경계·덮는 범위를 그릴 때. 좌표는 노드와 같은 단위, y 는 아래로 커진다)
   members  {아이디: [{"date","start","end","where","what","next","next_min","nodes"}]}   두 번째 역할 화면
            (nodes = 그래프에서 강조할 노드 id 목록. date = 묶는 날짜(자정을 넘는 구간은 시작한 날).
             그 구간 안에서 다음 날 새벽에 시작하는 항목은 "day" 에 실제 달력 날짜를 따로 넣는다)
@@ -63,7 +65,9 @@ def generate(data, params):
             a["next_min"] = minutes.get((a["place_id"], b["place_id"])) if b and b["place_id"] != a["place_id"] else (0 if b else None)
 
     graph = {"nodes": [{"id": k, "label": p["name"], "x": p["x"], "y": p["y"], "group": "자리"} for k, p in places.items()],
-             "edges": [{"from": a, "to": b, "label": f"{m}분", "group": "길"} for (a, b), m in minutes.items() if a < b]}
+             "edges": [{"from": a, "to": b, "label": f"{m}분", "group": "길"} for (a, b), m in minutes.items() if a < b],
+             "shapes": [{"kind": "poly", "points": [[0, 0], [90, 0], [90, 50], [0, 50]], "label": "전체 구역", "group": "구역"}]
+                       + [{"kind": "circle", "x": p["x"], "y": p["y"], "r": 12, "label": f"{p['name']} 범위", "group": "범위"} for p in places.values()]}
     summary = {"기간": f"{params['date_from']} ~ {params['date_to']}", "배정": len(out), "확인 필요": len(issues),
                "옮긴 배정": sum(1 for r in rows if r["기본 자리에서 옮김"])}
     return {"summary": summary, "issues": issues, "rows": rows, "graph": graph, "members": members,

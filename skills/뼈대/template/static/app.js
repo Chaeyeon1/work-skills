@@ -40,14 +40,25 @@ function graph(target, g, highlight = new Set()) {
   target.replaceChildren();
   if (!g || !g.nodes.length) return;
   const W = 640, H = 380, P = 40;
-  const xs = g.nodes.map((n) => n.x), ys = g.nodes.map((n) => n.y);
+  const shapes = g.shapes || [];
+  const pts = [...g.nodes.map((n) => [n.x, n.y]), ...shapes.flatMap((s) => s.kind === "poly" ? s.points : [[s.x - s.r, s.y - s.r], [s.x + s.r, s.y + s.r]])];
+  const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
   const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
   const sx = (x) => P + ((x - x0) / (x1 - x0 || 1)) * (W - 2 * P);
   const sy = (y) => P + ((y - y0) / (y1 - y0 || 1)) * (H - 2 * P);
   const pos = Object.fromEntries(g.nodes.map((n) => [n.id, [sx(n.x), sy(n.y)]]));
-  const groups = [...new Set(g.edges.map((e) => e.group))];
+  const groups = [...new Set([...g.edges.map((e) => e.group), ...shapes.map((s) => s.group)])];
   const colors = ["#5d6673", "#1f5fbf", "#a14a00", "#1d6b3a", "#7a3e9d", "#b3261e"];
   const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H, role: "img" });
+  const k = Math.min((W - 2 * P) / (x1 - x0 || 1), (H - 2 * P) / (y1 - y0 || 1));
+  for (const s of shapes) {
+    const c = colors[groups.indexOf(s.group) % colors.length];
+    const e = s.kind === "poly"
+      ? svgEl("polygon", { points: s.points.map(([x, y]) => `${sx(x)},${sy(y)}`).join(" "), fill: c, "fill-opacity": 0.08, stroke: c })
+      : svgEl("circle", { cx: sx(s.x), cy: sy(s.y), r: s.r * k, fill: c, "fill-opacity": 0.12, stroke: c, "stroke-dasharray": "4 3" });
+    if (s.label) { const t = svgEl("title"); t.textContent = s.label; e.append(t); }
+    svg.append(e);
+  }
   for (const e of g.edges) {
     if (!pos[e.from] || !pos[e.to]) continue;
     const [a, b] = [pos[e.from], pos[e.to]];
