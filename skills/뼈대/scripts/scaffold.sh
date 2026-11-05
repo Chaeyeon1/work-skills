@@ -29,4 +29,4 @@ if [ "$example" = 1 ] && [ ! -e "$WORK/data/provided" ]; then
   echo "예시 자료: data/provided"
 fi
 echo "만듦 ${made}개 · 건너뜀 ${kept}개 → $WORK"
-echo "채울 곳: app/spec.py · app/planner.py · checks/verify.py · checks/smoke.py 머리(MEMBER_ID·NIGHT) · HOW_TO_RUN.md (채움)"
+echo "채울 곳: app/spec.py · app/planner.py · checks/verify.py · checks/smoke.py 머리(MEMBER_ID·PARAM_CHANGE·NIGHT) · app/store.py TRANSITIONS·NEEDS · HOW_TO_RUN.md (채움) — 자세히는 SKILL.md"
