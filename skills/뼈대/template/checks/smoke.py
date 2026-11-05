@@ -155,6 +155,18 @@ def main():
         old = op.call(f"/api/plans/{p1}/export")[1]
         ok(old["stale"] is True, "옛 계획을 내보내면 stale 표시")
 
+        sys.path.insert(0, ROOT)
+        from app import apidoc
+        miss = []
+        for m, path, role, *_ in apidoc.ROUTES:
+            if m != "GET":
+                continue
+            c = (mem if role == "member" else op).call(path.replace("{id}", str(p1)))[0]
+            if c == 404:
+                miss.append(path)
+        ok(not miss, f"문서(apidoc.ROUTES)의 GET 경로가 실제로 있음 {miss or ''}")
+        ok(op.call("/openapi.json")[1].get("openapi") == "3.0.3" and urllib.request.urlopen(base + "/docs").status == 200, "/openapi.json · /docs")
+
         n_plans = len(op.call("/api/plans")[1]["plans"])
         stop(srv)
         srv = start(env)

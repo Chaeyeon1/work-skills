@@ -35,7 +35,7 @@ docker build -t plan-service .
 docker run --rm -p 8000:8000 -e OPERATOR_PASSWORD=… -e MEMBER_INITIAL_PASSWORD=… -v plan-data:/data plan-service
 ```
 
-헬스체크: `GET /health` → `{"ok": true, "dataset": true}`. 빈 DB 로 시작하면 스키마를 만들고 `data/provided` 를 첫 데이터셋으로 적용한다.
+API 문서: `/docs`(Swagger UI, 오프라인이면 표) · `/openapi.json`. 헬스체크: `GET /health` → `{"ok": true, "dataset": true}`. 빈 DB 로 시작하면 스키마를 만들고 `data/provided` 를 첫 데이터셋으로 적용한다.
 
 ## 5. 이용 순서와 대표 결과
 

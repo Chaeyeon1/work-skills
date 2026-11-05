@@ -29,7 +29,7 @@ description: 웹 서비스(데이터셋 적용 → 계산 → 결재·공개 →
 ## 고치지 않는 곳 (고쳐야 하면 먼저 사용자에게 말한다)
 `app/store.py`·`dataset.py`·`clock.py`·`server.py` 의 흐름. store.py 머리의 A~I 가 지키는 것:
 요청마다 새 연결 · 쓰기는 `BEGIN IMMEDIATE` 한 번에 하나 · 상태 바꾸기 전 검사와 저장이 한 트랜잭션 · 활성 데이터셋은 id 와 내용을 한 번에 · 조건은 데이터셋 버전마다 · 계획은 스냅숏(공개 화면은 스냅숏만) · 이전 데이터셋 계획은 결재·공개 409 · 계산 중 데이터셋이 바뀌면 저장 안 함 · 모든 상태 변화는 events.
-시각은 `clock.now()` 만(현지 `APP_UTC_OFFSET`, 자정 넘는 항목은 시작한 날). 새 API 를 더할 때도 쓰기는 `store.tx()` 안에서 검사 → 저장.
+시각은 `clock.now()` 만(현지 `APP_UTC_OFFSET`, 자정 넘는 항목은 시작한 날). 새 API 를 더할 때도 쓰기는 `store.tx()` 안에서 검사 → 저장하고, `app/apidoc.py` 의 ROUTES 에 한 줄 더한다(`/docs` Swagger UI · `/openapi.json`, smoke 가 어긋남을 잡는다).
 
 ## 서술형·보고에 쓸 때
 - 모듈·상태 순서: dataset.parse → store.apply_dataset → planner.generate → store.save_plan → store.transition → store.published. 줄 번호는 `grep -n 'def ' app/store.py` 로 새로 찍는다

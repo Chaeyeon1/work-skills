@@ -12,7 +12,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 sys.dont_write_bytecode = True
 
-from . import clock, dataset, planner, spec, store  # noqa: E402
+from . import apidoc, clock, dataset, planner, spec, store  # noqa: E402
 
 HOST = os.environ.get("HOST", "0.0.0.0")
 PORT = int(os.environ.get("PORT", "8000"))
@@ -171,6 +171,10 @@ class H(BaseHTTPRequestHandler):
         try:
             if method == "GET" and (not parts or parts[0] == "static"):
                 return self.static(parts[1:] if parts else ["index.html"])
+            if parts == ["openapi.json"]:
+                return self.send(200, apidoc.as_json().encode())
+            if parts == ["docs"]:
+                return self.send(200, apidoc.docs_html().encode(), "text/html; charset=utf-8")
             if parts == ["health"]:
                 return self.send(200, {"ok": True, "dataset": store.health()})
             if parts[:1] != ["api"]:
