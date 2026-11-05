@@ -1,5 +1,19 @@
 # work-skills
 
+## 에이전트용 설치 (사용자가 "work-skills 깔아 줘"라고 하면)
+
+작업 폴더(지금 열린 폴더) 맨 위에서 그대로 한다:
+
+```bash
+[ -d ~/work-skills ] && git -C ~/work-skills pull --ff-only || git clone https://github.com/Chaeyeon1/work-skills ~/work-skills
+bash ~/work-skills/install.sh --project .
+ls .agents/skills && ls AGENTS.md AGENTS.kit.md 2>/dev/null
+```
+
+- 스킬은 작업 폴더의 `.agents/skills/` 에 깐다(`--project`). 제출물에 포함되게 하기 위해서다. 홈(`~/.agents`)에만 깔지 않는다
+- 작업 폴더에 `AGENTS.md` 가 이미 있으면 덮지 않고 `AGENTS.kit.md` 로 둔다 → 그 경우 "AGENTS.kit.md 규칙도 따른다"를 기존 AGENTS.md 맨 아래에 한 줄 붙일지 사용자에게 묻는다
+- 끝나면 스킬 목록(13개)과 AGENTS.md 위치를 보여 주고, 사용자에게 `/skills` 에서 보이는지 확인하라고 한 줄로 알린다. 다른 파일은 만들거나 고치지 않는다
+
 현업 요청을 받아 AI 코딩 에이전트(Codex)와 작은 도구를 만들 때 쓰는 개인 작업 스킬.
 평소 Claude Code 커맨드로 쓰던 흐름(논의 · 계획서 · 구현 · 검사 · 보고서 · 기록)을 Codex 스킬로 옮기고, 요청자와 요구를 맞추는 단계(파악 · 요구)를 더했다.
 
