@@ -37,7 +37,7 @@ README 가 정한 파일 이름·위치·실행 방법이 이 파일보다 우�
 - 사용자가 직접 볼 것은 `직접 확인:` 줄로. 사용자가 확인했다고 하기 전엔 문서에 확인됐다고 쓰지 않는다
 - 방법이 둘 이상이면 `$논의` 로 비교하고 사용자가 고른다
 - 사용자가 골라야 할 것이 둘 이상 쌓이면 `$질문` 으로 고르는 페이지(view/questions.html)를 만든다
-- 화면(view/plan.html · view/questions.html · view/report.html)은 `python3 -m http.server 8090 --bind 0.0.0.0` 로 띄워 미리보기(Browser)에서 본다
+- 화면(view/plan.html · view/questions.html · view/report.html · view/explain.html)은 `python3 -m http.server 8090 --bind 0.0.0.0` 로 띄워 미리보기(Browser)에서 본다
 - 문서에 적는 시각은 언제나 `date +%H:%M` 으로 찍은 값이나 커밋·메신저에 찍힌 값. 어림하지 않는다 — 문장을 쓰기 전에 `T=$(date +%H:%M)` 으로 받아 그 값을 넣는다
 - 문서·대조표·보고 화면에 `파일:줄` 을 쓸 때마다 그 줄을 `sed -n` 으로 새로 찍어 원문 앞부분을 붙인다(코드를 고치면 줄이 밀린다)
 - 답은 10줄 안팎. 파일 전체를 출력하지 않는다. 큰 파일은 head·grep 으로. 이미 읽은 파일은 다시 읽지 않는다

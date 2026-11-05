@@ -53,13 +53,13 @@ bash ~/work-skills/install.sh --project .  # 스킬도 지금 폴더 .agents/ski
 | `구현 N` | 한 단계 → 확인 명령 → 커밋 → 기록 → 멈춤 | 코드, NOTES.md |
 | `검사` | 점검 스크립트, 규칙 ↔ 코드 대조, 사용자가 안 정한 결정 찾기 | 없음 |
 | `보고서` | 기능·케이스 추출, 잠시 끄고 비교 후 원복, 실행 방법 따라 하기, 넘김 내용 | README.md |
-| `설명` | 물을 만한 질문(선택과 포기 · 모듈 순서 · 검증과 가정 · 실패·동시 실행 · 조건 바꿀 때) 재료, 내가 정하지 않은 이름 | 없음 |
+| `설명` | 물을 만한 질문(선택과 포기 · 모듈 순서 · 검증과 가정 · 실패·동시 실행 · 조건 바꿀 때) 재료, 내가 정하지 않은 이름 | view/explain.html (한 장 그림) |
 | `문답` | 실제 코드·기록을 근거로 질문을 하나씩 내고, 쓴 답을 맞음·틀림·근거 없음·빠짐으로 채점, 꼬리 질문 | 없음 |
 | `기록` | 결정·트러블슈팅·확인을 시간과 함께, 설명할 지점과 약점 | NOTES.md |
 
 점검 스크립트만 따로: `bash ~/work-skills/skills/검사/scripts/check.sh`
 
-화면 보기: 작업 폴더에서 `python3 -m http.server 8090 --bind 0.0.0.0` → 미리보기(Browser) PORT 8090, URL `/view/plan.html` · `/view/questions.html` · `/view/report.html`
+화면 보기: 작업 폴더에서 `python3 -m http.server 8090 --bind 0.0.0.0` → 미리보기(Browser) PORT 8090, URL `/view/plan.html` · `/view/questions.html` · `/view/report.html` · `/view/explain.html`
 
 NOTES.md 를 에디터에 열어 둔 채 에이전트가 쓰면 저장 충돌이 날 수 있다. 에이전트가 쓴 뒤 다시 불러오고 내 문장을 더한다.
 
